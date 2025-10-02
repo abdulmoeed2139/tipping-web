@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FrontentController extends Controller
 {
@@ -13,7 +15,19 @@ class FrontentController extends Controller
 
     public function onetimePayment()
     {
-        return view('innerpages.one-time-payment');
+        $lastSuccess = Order::where('user_id', Auth::id())
+                    ->where('status', 'paid')
+                    ->latest('created_at')
+                    ->first();
+
+        $nextAutoAmount = null;
+
+        if ($lastSuccess) {
+            // Agar last success mila hai to +1
+            $nextAutoAmount = $lastSuccess->amount + 1;
+        }
+
+        return view('innerpages.one-time-payment', compact('nextAutoAmount'));
     }
 
     public function selectMethod()

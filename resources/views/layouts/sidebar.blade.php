@@ -7,7 +7,7 @@
                <a href="{{url('/')}}"> <img src="{{url('/assets/img/Logo.png')}}" alt="Login image" class="img-fluid logo-img mb-5"></a>
               </div>
               <nav class="nav flex-column">
-                <a href="#" class="nav-link active">
+                <a href="{{ url('/dashboard') }}" class="nav-link active">
                     <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M0 0H8.36841V8.36841H0V0ZM10.4605 0H18.8289V8.36841H10.4605V0ZM0 10.4605H8.36841V18.8289H0V10.4605ZM13.5987 10.4605H15.6908V13.5987H18.8289V15.6908H15.6908V18.8289H13.5987V15.6908H10.4605V13.5987H13.5987V10.4605ZM12.5526 2.0921V6.27631H16.7368V2.0921H12.5526ZM2.0921 2.0921V6.27631H6.27631V2.0921H2.0921ZM2.0921 12.5526V16.7368H6.27631V12.5526H2.0921Z" fill="#8C8C8C"/>
                     </svg>Dashboard</a>
@@ -17,7 +17,6 @@
                     </svg>
 
                     Logout</a>
-
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                         @csrf
                     </form>

@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\LinkAmount;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TipController extends Controller
 {
@@ -14,9 +15,18 @@ class TipController extends Controller
     {
         $amount = $request->amount;
         $token = Str::random(32);
+
+        $order = Order::create([
+            'amount' => $amount,
+            'user_id' => Auth::id(),
+            'status' => 'pending',
+        ]);
+
         $link = LinkAmount::create([
             'token' => $token,
             'amount' => $amount,
+            'user_id' => Auth::id(),
+            'order_id' => $order->id,
         ]);
 
         $url = url('/paylink/' . $token);
@@ -54,13 +64,13 @@ class TipController extends Controller
         if (!$link) {
             return redirect('/tip')->with('error', '❌ This payment link has expired. Please generate a new one.');
         }
-        
-        $order = Order::create([
-            'amount' => $link->amount,
-            'status' => 'pending',
-        ]);
 
-        return redirect('/pay/' . $order->id)->with([
+        // $order = Order::create([
+        //     'amount' => $link->amount,
+        //     'status' => 'pending',
+        // ]);
+
+        return redirect('/pay/' . $link->order->id)->with([
             'expired' => false,
             'amount' => $link->amount,
         ]);
@@ -73,29 +83,32 @@ class TipController extends Controller
             'amount' => 'required|numeric|min:5|max:9999',
         ]);
 
+        if($request->amount < $request->previousAmount){
+            return redirect()->back()->with('error', 'Amount previous amount se kam nahi ho sakta');
+        }
+
         $order = Order::create([
             'amount' => $request->amount,
+            'user_id' => Auth::id(),
             'status' => 'pending',
         ]);
 
-        // Ab direct pay/{order_id} pe bhej do
         return redirect('/pay/' . $order->id);
     }
 
     public function pay(Order $order)
     {
-        // Is page pe user ko merchant selection / payment method show karoge
         return view('innerpages.method-selection', compact('order'));
     }
 
     public function checkout(Order $order)
     {
-        // Yahan tum invoice ya checkout page dikha sakte ho
         return view('innerpages.invoice', compact('order'));
     }
 
     public function paymentSuccessful(Order $order)
     {
+        $order->update(['status' => 'paid']);
         return view('innerpages.paymentSuccessful', compact('order'));
     }
 

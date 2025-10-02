@@ -33,7 +33,7 @@ Route::middleware('auth')->group(function () {
 Route::post('/create-order', [TipController::class, 'createOrder']);
 Route::get('/pay/{order}', [TipController::class, 'pay']);
 Route::get('/checkout/{order}', [TipController::class, 'checkout']);
-Route::get('/order/{id}/success', [TipController::class, 'paymentSuccessful']);
+Route::get('/order/{order}/success', [TipController::class, 'paymentSuccessful']);
 Route::get('/order/{id}/failed', [TipController::class, 'unsuccessfulPayment']);
 Route::get('/paylink/{token}', [TipController::class, 'validateLink']);
 Route::post('/generate-link', [TipController::class, 'generateLink']);

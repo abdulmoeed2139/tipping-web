@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->decimal('amount', 10, 2);
             $table->string('status')->default('pending'); // pending, paid, failed
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

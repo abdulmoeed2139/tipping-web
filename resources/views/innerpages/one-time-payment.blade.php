@@ -50,14 +50,14 @@
           {{-- Sidebar Include --}}
          @if(Auth::check())
               @include('layouts.sidebar')
-             
+
          @endif
 
         <div id="dashboard2">
-         
+
 
                 <!-- Content -->
-                <div class="content">
+                {{-- <div class="content">
                     <div class="welcome-card">
                         <div class="amount-card">
                             <h1 class="amount-card-title">Welcome, <span class="span-img3"
@@ -83,10 +83,6 @@
 
                         </div>
 
-
-
-                        {{-- <a href="{{ url('/select-merchant') }}"> <button class="amount-next-btn">Next</button></a> --}}
-
                         <form action="{{ url('/create-order') }}" method="POST" id="orderForm">
                             @csrf
                             <input type="hidden" name="amount" id="selectedAmount">
@@ -99,8 +95,59 @@
                                 data-bs-target="#qrModal">View QR</button>
                         </div>
                     </div>
+                </div> --}}
+
+                <div class="content">
+                    <div class="welcome-card">
+                        <div class="amount-card">
+                            <h1 class="amount-card-title">Welcome, <span class="span-img3"
+                                    style="font-weight: 600;">User</span></h1>
+                            <p class="amount-card-subtitle">Select <strong>Amount</strong></p>
+
+
+                            <div class="amount-options">
+                                <button type="button" class="amount-option-btn" data-value="19"
+                                    @if($nextAutoAmount) disabled @endif>$19</button>
+
+                                <button type="button" class="amount-option-btn" data-value="49"
+                                    @if($nextAutoAmount) disabled @endif>$49</button>
+
+                                <button type="button" class="amount-option-btn" data-value="99"
+                                    @if($nextAutoAmount) disabled @endif>$99</button>
+
+                                <button type="button" class="amount-option-btn" data-value="custom"
+                                    >Custom</button>
+                            </div>
+
+                            <div class="amount-custom-input" id="custom-input-box" >
+                                <input type="number" min="5" max="9999"
+                                    class="amount-input-field"
+                                    id="customAmount"
+                                    name="customAmount"
+                                    {{-- value="{{ $nextAutoAmount ?? '' }}" --}}
+                                    {{-- {{ $nextAutoAmount ? 'readonly' : '' }} --}}
+                                     />
+
+                                <button class="amount-input-btn">$</button>
+                            </div>
+                        </div>
+
+                                {{-- Form --}}
+                        <form action="{{ url('/create-order') }}" method="POST" id="orderForm">
+                            @csrf
+                            <input type="hidden" id="previousAmount" name="previousAmount" value="{{ $nextAutoAmount ?? '' }}">
+                            <input type="hidden" name="amount" id="selectedAmount" value="{{ $nextAutoAmount ?? '' }}">
+                            <button type="submit" class="amount-next-btn">Check Out</button>
+                        </form>
+
+                        <div class="amount-actions">
+                            <button id="generateUrl" class="generateUrl" disabled>Generate Link</button>
+                            <button id="show_qr" class="show_qr" disabled data-bs-toggle="modal"
+                                data-bs-target="#qrModal">View QR</button>
+                        </div>
+                    </div>
                 </div>
-          
+
 
             </div>
 
@@ -162,24 +209,20 @@
 
 
             $(".amount-option-btn").click(function() {
-                // sab buttons se inline style hata do
-                $(".amount-option-btn").removeAttr("style");
 
+                $(".amount-option-btn").removeAttr("style");
                 let value = $(this).text().replace('$', '').trim();
 
                 if ($(this).text().trim() === "Custom") {
-                    // agar Custom hai to input enable & empty
-                    $("#customAmount").prop("disabled", false).val("").focus();
-                    $("#selectedAmount").val("");
+                    // $("#customAmount").prop("disabled", false).val("").focus();
+                    var previousAmount = parseInt($("#previousAmount").val());
+                    $("#customAmount").prop("disabled", false).val(previousAmount).focus();
+                    $("#selectedAmount").val(previousAmount);
                 } else {
-                    // agar normal button hai to value input me render ho jaaye
                     $("#customAmount").prop("disabled", true).val(value);
                     $("#selectedAmount").val(value);
                 }
-
                 updateButtons();
-
-                // clicked button ko highlight karo
                 $(this).css({
                     "background": "linear-gradient(to right, #ff0066, #ff6600)",
                     "color": "#fff",
@@ -187,7 +230,6 @@
                 });
             });
 
-            // custom input change hone par hidden input update karo
             $("#customAmount").on("input", function() {
                 let val = $(this).val();
                 if (val >= 5 && val <= 9999) {
@@ -197,6 +239,10 @@
                 }
                 updateButtons();
             });
+
+
+
+
 
             // Generate Link
             $generateBtn.on("click", function() {
@@ -213,24 +259,13 @@
                             latestLink = response.url;
                             navigator.clipboard.writeText(latestLink);
                             alert("Payment link copied: " + latestLink);
+                            location.reload();
                         }
                     }
                 });
             });
 
-            // // Show QR
-            // $qrBtn.on("click", function () {
-            //     if (latestLink) {
-            //         $("#qrcode").html("");
-            //         new QRCode(document.getElementById("qrcode"), {
-            //             text: latestLink,
-            //             width: 200,
-            //             height: 200
-            //         });
-            //     } else {
-            //         alert("Please generate a link first.");
-            //     }
-            // });
+
 
 
             $qrBtn.on("click", function() {
