@@ -69,7 +69,20 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'Asia/Karachi',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Payment Configuration
+    |--------------------------------------------------------------------------
+    |
+    | These values control the minimum and maximum order amounts for payments.
+    | Set these values in your ".env" file.
+    |
+    */
+
+    'minimum_order' => env('MINIMUM_ORDER', 5),
+    'maximum_order' => env('MAXIMUM_ORDER', 9999),
 
     /*
     |--------------------------------------------------------------------------

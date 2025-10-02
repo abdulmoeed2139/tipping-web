@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('token');
             $table->string('amount');
             $table->unsignedBigInteger('order_id');
-            $table->foreign('order_id')->references('id')->on('order_id')->onDelete('cascade');
+            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
             $table->timestamps();
         });
     }

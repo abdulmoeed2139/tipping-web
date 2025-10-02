@@ -34,9 +34,24 @@ Route::post('/create-order', [TipController::class, 'createOrder']);
 Route::get('/pay/{order}', [TipController::class, 'pay']);
 Route::get('/checkout/{order}', [TipController::class, 'checkout']);
 Route::get('/order/{order}/success', [TipController::class, 'paymentSuccessful']);
+Route::get('/order/{order}/invoice', [TipController::class, 'generateInvoice']);
 Route::get('/order/{id}/failed', [TipController::class, 'unsuccessfulPayment']);
 Route::get('/paylink/{token}', [TipController::class, 'validateLink']);
 Route::post('/generate-link', [TipController::class, 'generateLink']);
+Route::post('/regenerate-link', [TipController::class, 'regenerateLink']);
+
+// Crypto payment routes
+Route::post('/create-crypto-payment', [TipController::class, 'createCryptoPayment']);
+Route::get('/crypto-pay/{order}', [TipController::class, 'cryptoPay']);
+Route::get('/crypto-payment-status/{order}', [TipController::class, 'checkCryptoPaymentStatus']);
+Route::get('/supported-crypto', [TipController::class, 'getSupportedCrypto']);
+
+// Fiat payment routes (Visa/Mastercard/Apple Pay)
+Route::post('/create-fiat-payment', [TipController::class, 'createFiatPayment']);
+Route::get('/fiat-pay/{order}', [TipController::class, 'fiatPay']);
+Route::get('/fiat-payment-success/{order}', [TipController::class, 'fiatPaymentSuccess']);
+Route::get('/fiat-payment-cancel/{order}', [TipController::class, 'fiatPaymentCancel']);
+Route::get('/supported-fiat-methods', [TipController::class, 'getSupportedFiatMethods']);
 
 
 

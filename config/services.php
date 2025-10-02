@@ -31,4 +31,11 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'nowpayments' => [
+        'api_key' => env('NOWPAYMENTS_API_KEY'),
+        'sandbox' => env('NOWPAYMENTS_SANDBOX', true),
+        'ipn_secret' => env('NOWPAYMENTS_IPN_SECRET'),
+        'base_url' => env('NOWPAYMENTS_BASE_URL', 'https://api.nowpayments.io/v1'),
+    ],
+
 ];

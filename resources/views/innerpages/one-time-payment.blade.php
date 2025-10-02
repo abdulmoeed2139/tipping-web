@@ -198,7 +198,10 @@
 
             function updateButtons() {
                 let amount = parseFloat($selectedAmount.val());
-                if (amount && amount >= 5 && amount <= 9999) {
+                const minimumAmount = {{ config('app.minimum_order', 5) }};
+                const maximumAmount = {{ config('app.maximum_order', 9999) }};
+                
+                if (amount && amount >= minimumAmount && amount <= maximumAmount) {
                     $generateBtn.prop("disabled", false);
                     $qrBtn.prop("disabled", false);
                 } else {
@@ -247,6 +250,14 @@
             // Generate Link
             $generateBtn.on("click", function() {
                 let amount = $selectedAmount.val();
+                const minimumAmount = {{ config('app.minimum_order', 5) }};
+                const maximumAmount = {{ config('app.maximum_order', 9999) }};
+                
+                if (!amount || amount < minimumAmount || amount > maximumAmount) {
+                    alert(`Amount must be between $${minimumAmount} and $${maximumAmount}`);
+                    return;
+                }
+                
                 $.ajax({
                     url: "{{ url('/generate-link') }}",
                     type: "POST",
@@ -260,6 +271,20 @@
                             navigator.clipboard.writeText(latestLink);
                             alert("Payment link copied: " + latestLink);
                             location.reload();
+                        } else {
+                            alert("Error: " + (response.message || "Failed to generate link"));
+                        }
+                    },
+                    error: function(xhr) {
+                        console.log("AJAX Error:", xhr);
+                        let errorMessage = "Failed to generate payment link";
+                        
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            errorMessage = response.message || errorMessage;
+                            alert("Error: " + errorMessage);
+                        } catch (e) {
+                            alert("Error: " + errorMessage);
                         }
                     }
                 });
@@ -270,6 +295,13 @@
 
             $qrBtn.on("click", function() {
                 let amount = $selectedAmount.val();
+                const minimumAmount = {{ config('app.minimum_order', 5) }};
+                const maximumAmount = {{ config('app.maximum_order', 9999) }};
+                
+                if (!amount || amount < minimumAmount || amount > maximumAmount) {
+                    alert(`Amount must be between $${minimumAmount} and $${maximumAmount}`);
+                    return;
+                }
 
                 $.ajax({
                     url: "{{ url('/generate-link') }}",
@@ -291,6 +323,20 @@
                                 width: 200,
                                 height: 200
                             });
+                        } else {
+                            alert("Error: " + (response.message || "Failed to generate link"));
+                        }
+                    },
+                    error: function(xhr) {
+                        console.log("AJAX Error:", xhr);
+                        let errorMessage = "Failed to generate payment link";
+                        
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            errorMessage = response.message || errorMessage;                            
+                            alert("Error: " + errorMessage);
+                        } catch (e) {
+                            alert("Error: " + errorMessage);
                         }
                     }
                 });
