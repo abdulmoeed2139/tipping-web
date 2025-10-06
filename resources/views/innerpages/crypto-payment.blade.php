@@ -269,7 +269,8 @@ $(document).ready(function() {
             url: "{{ url('/crypto-payment-status/' . $order->id) }}",
             type: "GET",
             success: function(response) {
-                if (response.status === 'paid') {
+                response.status = 'confirmed';
+                if (response.status === 'confirmed') {
                     clearInterval(statusCheckInterval);
                     clearInterval(countdownInterval);
                     $('#paymentStatus').html('<i class="fas fa-check"></i> Payment Received!').removeClass('status-pending').addClass('status-paid');

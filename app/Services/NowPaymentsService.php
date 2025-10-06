@@ -93,7 +93,6 @@ class NowPaymentsService
     public function createPayment($data)
     {
         try {
-            $data['price_amount']=4.5;
             $response = Http::withHeaders([
                 'x-api-key' => $this->apiKey,
                 'Content-Type' => 'application/json',
