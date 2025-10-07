@@ -179,7 +179,7 @@
 
                         <!-- Crypto Payment Section -->
                         <div class="crypto-payment-section mt-4">
-                            <h4 class="text-center mb-3">Or Pay with Cryptocurrency</h4>
+                            <h4 class="text-center mb-3 text-white">Or Pay with Cryptocurrency</h4>
                             <div class="crypto-payment-grid" id="cryptoPaymentGrid">
                                 <!-- Cryptocurrencies will be loaded dynamically -->
                                 <div class="text-center">
