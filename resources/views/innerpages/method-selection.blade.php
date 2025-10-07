@@ -21,6 +21,77 @@
     .payment-option img {
         width: 80px;
     }
+    
+    .crypto-payment-section {
+        border-top: 1px solid #eee;
+        padding-top: 20px;
+    }
+    
+    .crypto-payment-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+    
+    .crypto-payment-option {
+        border: 2px solid transparent;
+        border-radius: 8px;
+        padding: 15px;
+        cursor: pointer;
+        transition: 0.3s;
+        text-align: center;
+        background: #f8f9fa;
+    }
+    
+    .crypto-payment-option:hover {
+        border-color: #ff9800;
+        background: #fff3e0;
+    }
+    
+    .crypto-payment-option.selected {
+        border-color: #ff9800;
+        background: #fff3e0;
+    }
+    
+    .crypto-payment-option img {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 8px;
+    }
+    
+    .crypto-payment-option span {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 15px 0;
+        display: none;
+    }
+    
+    .error-message.show {
+        display: block;
+    }
+    
+    .error-message.nowpayments-error {
+        background: #fff3cd;
+        color: #856404;
+        border-color: #ffeaa7;
+    }
+    
+    .error-message.network-error {
+        background: #d1ecf1;
+        color: #0c5460;
+        border-color: #bee5eb;
+    }
 </style>
 
 <main class="dashboard-con">
@@ -106,6 +177,25 @@
                             </div>
                         </div>
 
+                        <!-- Crypto Payment Section -->
+                        <div class="crypto-payment-section mt-4">
+                            <h4 class="text-center mb-3">Or Pay with Cryptocurrency</h4>
+                            <div class="crypto-payment-grid" id="cryptoPaymentGrid">
+                                <!-- Cryptocurrencies will be loaded dynamically -->
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                    <p class="mt-2">Loading cryptocurrencies...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Error Message Display -->
+                        <div id="errorMessage" class="error-message">
+                            <strong>Error:</strong> <span id="errorText"></span>
+                        </div>
+
                         {{-- <a href="{{ url('/invoice') }}"><button id="payNowBtn" class="amount-next-btn mt-5" disabled>Pay Now</button></a> --}}
 
                         <a href="{{ url('/checkout/' . $order->id) }}"><button id="payNowBtn" class="amount-next-btn mt-5" disabled>Pay Now</button></a>
@@ -127,11 +217,172 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
+        let selectedPaymentMethod = null;
+        let selectedCrypto = null;
+        
+        // Load supported cryptocurrencies
+        loadSupportedCrypto();
+
+        function loadSupportedCrypto() {
+            $.ajax({
+                url: "{{ url('/supported-crypto') }}",
+                type: "GET",
+                success: function(response) {
+                    const cryptoGrid = $('#cryptoPaymentGrid');
+                    cryptoGrid.empty();
+                    
+                    if (response && Object.keys(response).length > 0) {
+                        Object.keys(response).forEach(function(key) {
+                            const crypto = response[key];
+                            const cryptoOption = `
+                                <div class="crypto-payment-option" data-crypto="${key}">
+                                    <img src="{{ url('assets/img/crypto/') }}/${crypto.icon}" alt="${crypto.name}" style="width: 40px; height: 40px;">
+                                    <span>${crypto.symbol}</span>
+                                </div>
+                            `;
+                            cryptoGrid.append(cryptoOption);
+                        });
+                        
+                        // Re-attach click handlers for dynamically loaded elements
+                        attachCryptoClickHandlers();
+                    } else {
+                        cryptoGrid.html('<div class="text-center text-muted">No cryptocurrencies available</div>');
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Error loading cryptocurrencies:', xhr);
+                    $('#cryptoPaymentGrid').html('<div class="text-center text-danger">Failed to load cryptocurrencies</div>');
+                }
+            });
+        }
+
+        function attachCryptoClickHandlers() {
+            // Handle crypto payment selection
+            $(".crypto-payment-option").on("click", function () {
+                $(".crypto-payment-option").removeClass("selected");
+                $(".payment-option").removeClass("selected");
+                $(this).addClass("selected");
+
+                selectedCrypto = $(this).data("crypto");
+                selectedPaymentMethod = null;
+                $("#payNowBtn").prop("disabled", false);
+            });
+        }
+
+        // Handle fiat payment selection
         $(".payment-option").on("click", function () {
             $(".payment-option").removeClass("selected");
+            $(".crypto-payment-option").removeClass("selected");
             $(this).addClass("selected");
+            
+            selectedPaymentMethod = $(this).data("method");
+            selectedCrypto = null;
             $("#payNowBtn").prop("disabled", false);
         });
+
+        // Handle pay now button click
+        $("#payNowBtn").on("click", function(e) {
+            e.preventDefault();
+            
+            if (selectedCrypto) {
+                // Create crypto payment
+                createCryptoPayment();
+            } else if (selectedPaymentMethod) {
+                // Create fiat payment
+                createFiatPayment();
+            }
+        });
+
+        function createCryptoPayment() {
+            $.ajax({
+                url: "{{ url('/create-crypto-payment') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    amount: {{ $order->amount }},
+                    crypto_currency: selectedCrypto
+                },
+                success: function(response) {
+                    if (response.success) {
+                        window.location.href = response.redirect_url;
+                    } else {
+                        console.log('Crypto Payment Error:', response);
+                        showErrorMessage(response.message, response.error_type);
+                    }
+                },
+                error: function(xhr) {
+                    console.log('AJAX Error:', xhr);
+                    let errorMessage = 'Failed to create crypto payment';
+                    
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        errorMessage = response.message || errorMessage;
+                        showErrorMessage(errorMessage, response.error_type);
+                    } catch (e) {
+                        showErrorMessage(errorMessage, 'network_error');
+                    }
+                }
+            });
+        }
+
+        function createFiatPayment() {
+            $.ajax({
+                url: "{{ url('/create-fiat-payment') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    amount: {{ $order->amount }},
+                    fiat_method: selectedPaymentMethod
+                },
+                success: function(response) {
+                    if (response.success) {
+                        window.location.href = response.redirect_url;
+                    } else {
+                        console.log('Fiat Payment Error:', response);
+                        showErrorMessage(response.message, response.error_type);
+                    }
+                },
+                error: function(xhr) {
+                    console.log('AJAX Error:', xhr);
+                    let errorMessage = 'Failed to create fiat payment';
+                    
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        errorMessage = response.message || errorMessage;
+                        showErrorMessage(errorMessage, response.error_type);
+                    } catch (e) {
+                        showErrorMessage(errorMessage, 'network_error');
+                    }
+                }
+            });
+        }
+
+        function showErrorMessage(message, errorType) {
+            const errorDiv = $('#errorMessage');
+            const errorText = $('#errorText');
+            
+            // Hide any existing error messages
+            errorDiv.removeClass('show nowpayments-error network-error');
+            
+            // Set the error message
+            errorText.text(message);
+            
+            // Add appropriate CSS class based on error type
+            if (errorType) {
+                errorDiv.addClass(errorType);
+            }
+            
+            // Show the error message
+            errorDiv.addClass('show');
+            
+            // Scroll to error message
+            errorDiv[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Hide error after 10 seconds
+            setTimeout(function() {
+                errorDiv.removeClass('show');
+            }, 10000);
+        }
     });
 </script>
 
