@@ -285,7 +285,7 @@ main#mainContent {
     
     .nav-toggle{
      opacity:1;
-     visiblity:
+   
     }
 
 }
@@ -2026,6 +2026,13 @@ input[type="password"] {
 .content {
     flex: 1;
 }
+
+.crypto-payment-section h4{
+    color:#fff;
+    font-family: var(--heading-font);
+    font-size:30px;
+    font-weight:600;
+    }
 
 .welcome-card {
     /* background: linear-gradient(135deg, #1f005c, #ff2e63); */
