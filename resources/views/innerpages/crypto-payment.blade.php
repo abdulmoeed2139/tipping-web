@@ -235,7 +235,7 @@
 $(document).ready(function() {
     let countdownInterval;
     let statusCheckInterval;
-    let debugMode = {{env('APP_DEBUG')}};
+    let debugMode = {{env('APP_DEBUG',1)}};
     
     // Set up countdown timer
     const expiresAt = new Date('{{ $order->payment_expires_at }}').getTime();
