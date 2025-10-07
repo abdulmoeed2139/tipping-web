@@ -121,6 +121,7 @@
 
                             <div class="amount-custom-input" id="custom-input-box" >
                                 <input type="number" min="5" max="9999"
+                                    placeholder="Enter amount (min $5 and max $9999)"
                                     class="amount-input-field"
                                     id="customAmount"
                                     name="customAmount"
@@ -195,18 +196,22 @@
             let $selectedAmount = $("#selectedAmount");
             let $generateBtn = $("#generateUrl");
             let $qrBtn = $("#show_qr");
+            let $submitBtn = $("#orderForm button[type='submit']");
 
             function updateButtons() {
+               
                 let amount = parseFloat($selectedAmount.val());
                 const minimumAmount = {{ config('app.minimum_order', 5) }};
                 const maximumAmount = {{ config('app.maximum_order', 9999) }};
-                
+                console.log(amount, minimumAmount, maximumAmount);
                 if (amount && amount >= minimumAmount && amount <= maximumAmount) {
                     $generateBtn.prop("disabled", false);
                     $qrBtn.prop("disabled", false);
+                    $submitBtn.prop("disabled", false);
                 } else {
                     $generateBtn.prop("disabled", true);
                     $qrBtn.prop("disabled", true);
+                    $submitBtn.prop("disabled", true);
                 }
             }
 

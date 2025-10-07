@@ -269,7 +269,6 @@ $(document).ready(function() {
             url: "{{ url('/crypto-payment-status/' . $order->id) }}",
             type: "GET",
             success: function(response) {
-                response.status = 'confirmed';
                 if (response.status === 'confirmed') {
                     clearInterval(statusCheckInterval);
                     clearInterval(countdownInterval);

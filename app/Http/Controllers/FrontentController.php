@@ -21,12 +21,10 @@ class FrontentController extends Controller
                     ->first();
 
         $nextAutoAmount = null;
-        $lastSuccess->amount=0;
-        $lastSuccess->save();
-        if ($lastSuccess) {
-            // Agar last success mila hai to +1
-            $nextAutoAmount = $lastSuccess->amount + 1;
-        }
+        // if ($lastSuccess) {
+        //     // Agar last success mila hai to +1
+        //     $nextAutoAmount = $lastSuccess->amount + 1;
+        // }
 
         return view('innerpages.one-time-payment', compact('nextAutoAmount'));
     }
