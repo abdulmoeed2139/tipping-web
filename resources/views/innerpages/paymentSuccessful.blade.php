@@ -71,7 +71,7 @@
                                         <div class="col-md-4">
                                             <div class="total-amount">
                                                 <h4>Total Amount</h4>
-                                                <h3 class="text-success">${{ number_format($order->amount, 2) }}</h3>
+                                                <h3 class="orderAmount">${{ number_format($order->amount, 2) }}</h3>
                                             </div>
                                         </div>
                                     </div>

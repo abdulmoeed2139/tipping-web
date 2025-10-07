@@ -2034,6 +2034,15 @@ input[type="password"] {
     font-weight:600;
     }
 
+
+    .orderAmount{
+    color:#000;
+    }
+
+    .invoice-summary p {
+        color:#000;
+    }
+
 .welcome-card {
     /* background: linear-gradient(135deg, #1f005c, #ff2e63); */
     background-image: url('../img/dashboard-bg.png');
