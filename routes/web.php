@@ -25,7 +25,7 @@ Route::get('/home', function(){
 })->name('home');
 
 Route::middleware('auth')->group(function () {
-    route::get('/dashboard', [HomeController::class, 'index'])->name('home');
+    route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
     route::get('/tip', [FrontentController::class, 'onetimePayment']);
 });
 
